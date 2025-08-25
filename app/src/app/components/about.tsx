@@ -57,7 +57,7 @@ const About = () => {
                 alt="Zaidan Ahmad"
                 width={400}
                 height={400}
-                className="rounded-full shadow-lg"
+                className="rounded-full shadow-lg dark:shadow-lg-dark"
               />
             </motion.div>
           </div>

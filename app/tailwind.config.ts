@@ -9,6 +9,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      boxShadow: {
+        'lg-dark': '0 10px 15px -3px rgba(255, 255, 255, 0.1), 0 4px 6px -4px rgba(255, 255, 255, 0.1)',
+      },
       fontFamily: {
         sans: ['var(--font-inter)'],
         poppins: ['var(--font-poppins)'],
