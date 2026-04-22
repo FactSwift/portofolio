@@ -55,12 +55,20 @@ const sendContactNotification = async (payload: ContactPayload) => {
 };
 
 const getClientIp = (request: NextRequest) => {
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  if (forwardedFor) {
-    return forwardedFor.split(',')[0]?.trim() ?? 'unknown';
+  const ipFromHeaders = [
+    request.headers.get('x-forwarded-for'),
+    request.headers.get('x-real-ip'),
+    request.headers.get('cf-connecting-ip'),
+    request.headers.get('x-vercel-forwarded-for'),
+  ];
+
+  for (const headerValue of ipFromHeaders) {
+    if (headerValue) {
+      return headerValue.split(',')[0]?.trim() ?? 'unknown';
+    }
   }
 
-  return request.ip ?? 'unknown';
+  return 'unknown';
 };
 
 const isRateLimited = (ipAddress: string) => {
