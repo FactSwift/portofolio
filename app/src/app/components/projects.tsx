@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Github, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import SectionWrapper from './section-wrapper';
 
 const projects = [
@@ -15,6 +15,22 @@ const projects = [
     tags: ["Python", "LangChain", "Transformers", "FastAPI", "Uvicorn", "Docker"],
     liveUrl: null,
     githubUrl: null
+  },
+  {
+    title: "Aang IOT Air Control System",
+    description: "A remote web app-controlled air purifier with smart monitoring and an autonomous system that can be managed from anywhere. We won 'People's Choice Award'",
+    images: ["/images/aang2.jpeg", "/images/aang1.jpeg"],
+    tags: ["Firebase", "Vite", "ESP32", "Python"],
+    liveUrl: null,
+    githubUrl: "https://github.com/FactSwift/Aang-Air-Control-System"
+  },
+  {
+    title: "Kyuubi: Nasu Town Digital Map",
+    description: "A digital map and smart guide with a physical AI chatbot that can help tourists in any language for Nasu Town tourism in Japan. This project won 2nd best during the Cross-cultural Engineering Project at SIT Omiya Campus.",
+    images: ["/images/Kyuubi1.png", "/images/Kyuubi2.jpeg", "/images/Kyuubi3.jpg"],
+    tags: ["NextJS", "Vercel", "OpenStreetMap", "OpenAI"],
+    liveUrl: null,
+    githubUrl: "https://github.com/FactSwift/Kyubii"
   },
   {
     title: "Mechiu",
@@ -40,13 +56,14 @@ const ProjectCard = ({ project, index }: { project: typeof projects[0], index: n
   return (
     <motion.div
       key={index}
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.2 }}
-      className="bg-slate-50 dark:bg-slate-800 rounded-lg shadow-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 flex flex-col"
+      initial={{ opacity: 0, y: 30, scale: 0.96 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, amount: 0.35 }}
+      transition={{ duration: 0.55, delay: index * 0.1 }}
+      whileHover={{ y: -6 }}
+      className="surface-card group flex h-full min-w-[320px] max-w-[320px] snap-center flex-col overflow-hidden md:min-w-[380px] md:max-w-[380px]"
     >
-      <div className="relative w-full h-48">
+      <div className="relative h-56 w-full overflow-hidden">
         {project.images.map((src, i) => (
           <Image
             key={i}
@@ -57,39 +74,59 @@ const ProjectCard = ({ project, index }: { project: typeof projects[0], index: n
             className={`transition-opacity duration-500 ${i === currentImage ? 'opacity-100' : 'opacity-0'}`}
           />
         ))}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/45 via-transparent to-transparent" />
         {project.images.length > 1 && (
           <>
-            <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full">
+            <button
+              onClick={prevImage}
+              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full border border-white/65 bg-black/35 p-1.5 text-white transition-colors hover:bg-black/55"
+            >
               <ChevronLeft size={20} />
             </button>
-            <button onClick={nextImage} className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-1 rounded-full">
+            <button
+              onClick={nextImage}
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full border border-white/65 bg-black/35 p-1.5 text-white transition-colors hover:bg-black/55"
+            >
               <ChevronRight size={20} />
             </button>
           </>
         )}
       </div>
-      <div className="p-6 flex flex-col flex-grow">
-        <h3 className="text-xl font-bold text-slate-900 dark:text-slate-200 mb-2">{project.title}</h3>
-        <p className="text-slate-600 dark:text-slate-400 mb-4 flex-grow">{project.description}</p>
-        <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-grow flex-col p-6">
+        <h3 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-100">{project.title}</h3>
+        <p className="mt-2 flex-grow text-sm leading-relaxed text-[color:var(--muted)] md:text-base">{project.description}</p>
+        <div className="mt-5 flex flex-wrap gap-2">
           {project.tags.map(tag => (
-            <span key={tag} className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+            <span
+              key={tag}
+                className="rounded-full border border-brand-300/80 bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700 dark:border-red-800/80 dark:bg-red-950/30 dark:text-red-200"
+            >
               {tag}
             </span>
           ))}
         </div>
-        <div className="flex justify-end space-x-4 mt-auto">
+        <div className="mt-6 flex items-center justify-end gap-4">
           {project.liveUrl && (
-            <Link href={project.liveUrl} target="_blank" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+            <Link
+              href={project.liveUrl}
+              target="_blank"
+              className="text-slate-700 transition-colors hover:text-brand-600 dark:text-slate-200 dark:hover:text-red-300"
+              aria-label={`${project.title} live demo`}
+            >
               <ExternalLink size={24} />
             </Link>
           )}
           {project.githubUrl ? (
-            <Link href={project.githubUrl} target="_blank" className="text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors">
+            <Link
+              href={project.githubUrl}
+              target="_blank"
+              className="text-slate-700 transition-colors hover:text-brand-600 dark:text-slate-200 dark:hover:text-red-300"
+              aria-label={`${project.title} GitHub repository`}
+            >
               <Github size={24} />
             </Link>
           ) : (
-            <span className="text-sm text-slate-500 dark:text-slate-400">Private Repository</span>
+            <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">Private Repository</span>
           )}
         </div>
       </div>
@@ -98,13 +135,56 @@ const ProjectCard = ({ project, index }: { project: typeof projects[0], index: n
 };
 
 const Projects = () => {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollProjects = (direction: 'left' | 'right') => {
+    const container = scrollRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    const amount = container.clientWidth * 0.8;
+    container.scrollBy({
+      left: direction === 'left' ? -amount : amount,
+      behavior: 'smooth',
+    });
+  };
+
   return (
-    <SectionWrapper id="projects" className="bg-white dark:bg-slate-900">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-200 text-center mb-12">
-          My Projects
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <SectionWrapper id="projects">
+      <div className="mx-auto w-[min(1120px,92%)]">
+        <div className="mb-10 flex flex-col gap-5 text-center md:flex-row md:items-end md:justify-between md:text-left">
+          <div>
+            <span className="section-kicker">Projects</span>
+            <h2 className="section-heading mt-4 text-slate-900 dark:text-slate-100">Selected builds and experiments</h2>
+            <p className="section-lead mx-auto mt-4 max-w-2xl md:mx-0">
+              A mix of production-facing systems and exploratory builds across AI, backend APIs, and product engineering.
+            </p>
+          </div>
+          <div className="flex items-center justify-center gap-3 md:justify-end">
+            <button
+              type="button"
+              onClick={() => scrollProjects('left')}
+              className="social-pill h-12 w-12"
+              aria-label="Scroll projects left"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollProjects('right')}
+              className="social-pill h-12 w-12"
+              aria-label="Scroll projects right"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        </div>
+        <div
+          ref={scrollRef}
+          className="flex snap-x snap-mandatory gap-6 overflow-x-auto overflow-y-visible pb-6 pr-2 pt-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
           {projects.map((project, index) => (
             <ProjectCard key={index} project={project} index={index} />
           ))}

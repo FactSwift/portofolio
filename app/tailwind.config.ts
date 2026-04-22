@@ -10,9 +10,10 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-inter)'],
-        poppins: ['var(--font-poppins)'],
-        'zilla-slab': ['var(--font-zilla-slab)'],
+        sans: ['var(--font-barlow)'],
+        heading: ['var(--font-prompt)'],
+        prompt: ['var(--font-prompt)'],
+        barlow: ['var(--font-barlow)'],
       },
       colors: {
         slate: {
@@ -26,7 +27,31 @@ const config: Config = {
           700: '#334155',
           800: '#1e293b',
           900: '#0f172a',
-        }
+        },
+        brand: {
+          50: '#fff4ef',
+          100: '#ffe5d7',
+          200: '#ffc5a5',
+          300: '#ffab80',
+          400: '#ff8c5c',
+          500: '#ef6a37',
+          600: '#d35728',
+          700: '#b54620',
+          800: '#933d1f',
+          900: '#7a381f',
+        },
+        mint: {
+          50: '#ebfaf8',
+          100: '#cdf4ee',
+          200: '#99e8de',
+          300: '#67d9cd',
+          400: '#3bc1b5',
+          500: '#1f9d94',
+          600: '#1a7f78',
+          700: '#186661',
+          800: '#18524e',
+          900: '#174542',
+        },
       }
     },
   },

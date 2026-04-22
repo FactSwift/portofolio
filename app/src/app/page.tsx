@@ -3,26 +3,29 @@ import Home from './components/home';
 import About from './components/about';
 import Experiences from './components/experiences';
 import Projects from './components/projects';
+import Activities from './components/activities';
 import Contact from './components/contact';
 import { Github, Linkedin, Instagram } from 'lucide-react';
 import Link from 'next/link';
 
 const Footer = () => {
   return (
-    <footer className="bg-slate-800 dark:bg-slate-900 text-white py-8">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="flex justify-center space-x-6 mb-4">
-          <Link href="https://www.linkedin.com/in/zaidanahmad/" target="_blank" className="text-slate-400 hover:text-white transition-colors duration-300">
+    <footer className="border-t border-[color:var(--border)] bg-[color:var(--surface)] py-10 backdrop-blur">
+      <div className="mx-auto w-[min(1120px,92%)] text-center">
+        <div className="mb-4 flex justify-center gap-4">
+          <Link href="https://www.linkedin.com/in/zaidanahmad/" target="_blank" className="social-pill" aria-label="LinkedIn">
             <Linkedin size={24} />
           </Link>
-          <Link href="https://github.com/FactSwift" target="_blank" className="text-slate-400 hover:text-white transition-colors duration-300">
+          <Link href="https://github.com/FactSwift" target="_blank" className="social-pill" aria-label="GitHub">
             <Github size={24} />
           </Link>
-          <Link href="https://www.instagram.com/zaidanahm.ai/" target="_blank" className="text-slate-400 hover:text-white transition-colors duration-300">
+          <Link href="https://www.instagram.com/zaidanahm.ai/" target="_blank" className="social-pill" aria-label="Instagram">
             <Instagram size={24} />
           </Link>
         </div>
-        <p className="text-slate-400">&copy; {new Date().getFullYear()} Zaidan Ahmad. All Rights Reserved.</p>
+        <p className="text-sm tracking-wide text-[color:var(--muted)]">
+          &copy; {new Date().getFullYear()} Zaidan Ahmad. 3D models created by dark_igorek.
+        </p>
       </div>
     </footer>
   );
@@ -30,12 +33,13 @@ const Footer = () => {
 
 export default function Page() {
   return (
-    <main className="bg-white dark:bg-slate-900">
+    <main className="site-shell">
       <Header />
       <Home />
       <About />
       <Experiences />
       <Projects />
+      <Activities />
       <Contact />
       <Footer />
     </main>

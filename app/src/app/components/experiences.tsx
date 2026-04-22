@@ -41,53 +41,54 @@ const experiences = [
 
 const Experiences = () => {
   return (
-    <SectionWrapper id="experiences" className="bg-slate-50 dark:bg-slate-900">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-200 text-center mb-12">
-          Experiences
-        </h2>
-        <div className="relative">
-          <div className="hidden lg:block absolute left-1/2 w-0.5 h-full bg-gray-300 dark:bg-slate-700 transform -translate-x-1/2"></div>
-          <div className="space-y-12">
-            {experiences.map((exp, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
-                className="lg:grid lg:grid-cols-2 lg:gap-x-12 lg:items-center"
-              >
-                <div className={`mb-4 lg:mb-0 ${index % 2 === 0 ? 'lg:order-1' : 'lg:order-2'}`}>
-                  {exp.images.map((src, i) => (
-                    <Image
-                      key={i}
-                      src={src}
-                      alt={`${exp.position} at ${exp.company}`}
-                      width={500}
-                      height={300}
-                      className="rounded-lg shadow-lg w-full"
-                    />
-                  ))}
+    <SectionWrapper id="experiences">
+      <div className="mx-auto w-[min(1120px,92%)]">
+        <div className="mb-14 text-center">
+          <span className="section-kicker">Work Experience</span>
+          <h2 className="section-heading mt-4 text-slate-900 dark:text-slate-100">Where I have shipped impact</h2>
+          <p className="section-lead mx-auto mt-4 max-w-2xl">
+            Hands-on roles focused on building practical machine learning products and leading technical initiatives.
+          </p>
+        </div>
+        <div className="space-y-8">
+          {experiences.map((exp, index) => (
+            <motion.article
+              key={`${exp.company}-${exp.position}`}
+              initial={{ opacity: 0, y: 45 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.12 }}
+              className="surface-card overflow-hidden p-4 md:p-6"
+            >
+              <div className="grid gap-6 md:grid-cols-[280px_1fr] md:items-center">
+                <div className="relative h-56 overflow-hidden rounded-2xl">
+                  <Image
+                    src={exp.images[0]}
+                    alt={`${exp.position} at ${exp.company}`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 280px"
+                    className="h-full w-full object-cover"
+                  />
                 </div>
-                <div className={`relative ${index % 2 === 0 ? 'lg:order-2' : 'lg:order-1'}`}>
-                  <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 -top-5 items-center justify-center w-10 h-10 bg-blue-600 rounded-full text-white">
-                    <Briefcase size={20} />
-                  </div>
-                  <div className="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-md">
-                    <h3 className="text-xl font-bold text-blue-600 dark:text-blue-400">{exp.position}</h3>
-                    <p className="text-md font-semibold text-slate-700 dark:text-slate-300">{exp.company}</p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">{exp.time}</p>
-                    <ul className="text-sm text-slate-600 dark:text-slate-400 list-disc list-inside">
-                      {exp.description.map((item, i) => (
-                        <li key={i}>{item}</li>
-                      ))}
-                    </ul>
-                  </div>
+                <div>
+                  <span className="chip">
+                    <Briefcase size={14} className="mr-2" />
+                    {exp.time}
+                  </span>
+                  <h3 className="mt-4 font-heading text-2xl font-bold text-slate-900 dark:text-slate-100">{exp.position}</h3>
+                  <p className="mt-1 text-base font-semibold text-brand-600 dark:text-red-300">{exp.company}</p>
+                  <ul className="mt-4 space-y-2 text-sm leading-relaxed text-[color:var(--muted)] md:text-base">
+                    {exp.description.map((item, i) => (
+                      <li key={`${exp.company}-${i}`} className="flex items-start gap-2">
+                        <span className="mt-2 h-1.5 w-1.5 flex-none rounded-full bg-brand-500 dark:bg-red-300" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              </motion.div>
-            ))}
-          </div>
+              </div>
+            </motion.article>
+          ))}
         </div>
       </div>
     </SectionWrapper>

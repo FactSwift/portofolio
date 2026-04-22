@@ -1,24 +1,18 @@
 import type { Metadata } from "next";
-import { Poppins, Inter, Zilla_Slab } from "next/font/google";
+import { Prompt, Barlow } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const poppins = Poppins({
+const prompt = Prompt({
   subsets: ["latin"],
-  weight: ["600", "700"],
-  variable: "--font-poppins",
+  weight: ["600", "700", "800"],
+  variable: "--font-prompt",
 });
 
-const inter = Inter({
+const barlow = Barlow({
   subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-inter",
-});
-
-const zillaSlab = Zilla_Slab({
-  subsets: ["latin"],
-  weight: ["700"],
-  variable: "--font-zilla-slab",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-barlow",
 });
 
 export const metadata: Metadata = {
@@ -42,7 +36,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${poppins.variable} ${inter.variable} ${zillaSlab.variable} font-sans bg-white dark:bg-slate-900`}>
+      <body className={`${prompt.variable} ${barlow.variable} font-sans antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

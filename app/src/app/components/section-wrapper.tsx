@@ -12,15 +12,16 @@ interface SectionWrapperProps {
 const sectionVariants: Variants = {
   offscreen: {
     opacity: 0,
-    y: 50,
+    y: 70,
+    filter: 'blur(6px)',
   },
   onscreen: {
     opacity: 1,
     y: 0,
+    filter: 'blur(0px)',
     transition: {
-      type: 'spring',
-      bounce: 0.4,
-      duration: 0.8,
+      duration: 0.75,
+      ease: [0.22, 1, 0.36, 1],
     },
   },
 };
@@ -29,7 +30,7 @@ const SectionWrapper: React.FC<SectionWrapperProps> = ({ children, className, id
   return (
     <motion.section
       id={id}
-      className={`py-24 ${className}`}
+      className={`relative py-24 md:py-28 ${className ?? ''}`}
       initial="offscreen"
       whileInView="onscreen"
       viewport={{ once: true, amount: 0.2 }}

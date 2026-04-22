@@ -2,19 +2,243 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg: #f6f3eb;
+  --bg-alt: #edf3f4;
+  --text: #1c2636;
+  --muted: #56657b;
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-raised: #ffffff;
+  --border: rgba(28, 38, 54, 0.14);
+  --accent: #ef6a37;
+  --accent-strong: #c84a1f;
+  --accent-soft: #ffe4d7;
+  --accent-soft-text: #9f3f20;
+  --mint: #1f9d94;
+  --field-bg: #ffffff;
+  --field-border: #cfd7e5;
+  --card-shadow: 0 22px 60px -38px rgba(15, 23, 42, 0.55);
+}
+
+.dark {
+  --bg: #0f141d;
+  --bg-alt: #14212c;
+  --text: #f3f6fc;
+  --muted: #b5c0d2;
+  --surface: rgba(23, 33, 47, 0.74);
+  --surface-raised: #1c2736;
+  --border: rgba(168, 182, 205, 0.28);
+  --accent: #ef4444;
+  --accent-strong: #dc2626;
+  --accent-soft: rgba(239, 68, 68, 0.22);
+  --accent-soft-text: #fecaca;
+  --mint: #5adacc;
+  --field-bg: #172233;
+  --field-border: #2f465f;
+  --card-shadow: 0 30px 80px -48px rgba(2, 8, 23, 0.96);
+}
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  font-family: var(--font-inter);
+  min-height: 100vh;
+  color: var(--text);
+  font-family: var(--font-barlow), sans-serif;
+  background:
+    radial-gradient(900px 420px at 110% -10%, rgba(239, 106, 55, 0.2), transparent 65%),
+    radial-gradient(820px 360px at -5% 15%, rgba(31, 157, 148, 0.16), transparent 65%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-alt) 100%);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+.dark body {
+  background:
+    radial-gradient(900px 420px at 110% -10%, rgba(239, 68, 68, 0.2), transparent 65%),
+    radial-gradient(820px 360px at -5% 15%, rgba(31, 157, 148, 0.16), transparent 65%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-alt) 100%);
+}
+
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-poppins);
+  font-family: var(--font-prompt), sans-serif;
+}
+
+input,
+textarea,
+select,
+button {
+  font-family: var(--font-barlow), sans-serif;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
 }
 
 * {
   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+::selection {
+  color: #fff;
+  background: var(--accent);
+}
+
+@layer components {
+  .site-shell {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .site-shell::before {
+    content: "";
+    position: absolute;
+    inset: -30% -20% auto;
+    height: 620px;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.35) 0%, transparent 64%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .dark .site-shell::before {
+    background: radial-gradient(circle at center, rgba(90, 218, 204, 0.12) 0%, transparent 66%);
+  }
+
+  .site-shell > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .surface-card {
+    @apply rounded-3xl border backdrop-blur;
+    border-color: var(--border);
+    background-color: var(--surface);
+    box-shadow: var(--card-shadow);
+  }
+
+  .section-kicker {
+    @apply inline-flex items-center rounded-full border px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em];
+    border-color: var(--accent);
+    color: var(--accent-strong);
+    background-color: var(--accent-soft);
+  }
+
+  .section-heading {
+    @apply text-4xl font-bold leading-tight md:text-5xl;
+  }
+
+  .section-lead {
+    @apply text-base leading-relaxed md:text-lg;
+    color: var(--muted);
+  }
+
+  .chip {
+    @apply inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold;
+    border-color: var(--accent);
+    color: var(--accent-soft-text);
+    background-color: var(--accent-soft);
+  }
+
+  .social-pill {
+    @apply inline-flex h-11 w-11 items-center justify-center rounded-xl border transition-all duration-300;
+    border-color: var(--border);
+    background-color: rgba(255, 255, 255, 0.45);
+    color: var(--text);
+  }
+
+  .social-pill:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    color: var(--accent-strong);
+    background-color: var(--accent-soft);
+  }
+
+  .action-btn {
+    @apply inline-flex items-center justify-center rounded-2xl px-6 py-3 text-sm font-semibold transition-all duration-300;
+    color: #fffaf5;
+    background: linear-gradient(120deg, var(--accent-strong), var(--accent));
+    box-shadow: 0 16px 34px -22px rgba(200, 74, 31, 0.9);
+  }
+
+  .dark .action-btn {
+    box-shadow: 0 16px 34px -22px rgba(220, 38, 38, 0.9);
+  }
+
+  .action-btn:hover {
+    transform: translateY(-2px);
+    filter: saturate(1.08);
+  }
+
+  .outline-btn {
+    @apply inline-flex items-center justify-center rounded-2xl border px-5 py-2.5 text-sm font-semibold transition-all duration-300;
+    border-color: var(--border);
+    color: var(--text);
+    background-color: rgba(255, 255, 255, 0.45);
+  }
+
+  .outline-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent-strong);
+    background-color: var(--accent-soft);
+  }
+
+  .hero-rainbow-layer {
+    position: fixed;
+    inset: 0;
+    z-index: -10;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, rgba(0, 0, 0, 0.35) 12%, #000 34%, #000 100%);
+    mask-image: linear-gradient(to top, transparent 0%, rgba(0, 0, 0, 0.35) 12%, #000 34%, #000 100%);
+  }
+
+  .hero-rainbow-stack {
+    position: absolute;
+    top: 46%;
+    left: 7%;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    opacity: 0.32;
+    transform: translate(-28%, -50%) rotate(90deg) scale(1.16);
+  }
+
+  .hero-rainbow-trail {
+    width: 176vh;
+    height: 22px;
+    border-radius: 9999px;
+    filter: blur(28px);
+    box-shadow: 0 0 10px currentColor, 0 0 24px currentColor;
+  }
+
+  .dark .hero-rainbow-stack {
+    opacity: 0.43;
+  }
+}
+
+.hero-animated-line {
+  outline: none;
+  box-shadow: none;
+}
+
+.dark .hero-animated-line {
+  outline: none;
+  box-shadow: 0 0 8px currentColor, 0 0 14px currentColor;
+}
+
+.hero-typing-text {
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.dark .hero-typing-text {
+  text-shadow: 0 0 10px rgba(90, 218, 204, 0.28);
+}
+
+.hero-typing-cursor {
+  box-shadow: none;
+}
+
+.dark .hero-typing-cursor {
+  box-shadow: 0 0 8px rgba(90, 218, 204, 0.55), 0 0 14px rgba(90, 218, 204, 0.35);
 }
