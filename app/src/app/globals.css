@@ -76,10 +76,6 @@ textarea::placeholder {
   color: var(--muted);
 }
 
-* {
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-}
-
 ::selection {
   color: #fff;
   background: var(--accent);
@@ -208,8 +204,8 @@ textarea::placeholder {
     width: 176vh;
     height: 22px;
     border-radius: 9999px;
-    filter: blur(28px);
-    box-shadow: 0 0 10px currentColor, 0 0 24px currentColor;
+    filter: blur(22px);
+    box-shadow: 0 0 8px currentColor, 0 0 18px currentColor;
   }
 
   .dark .hero-rainbow-stack {
@@ -241,4 +237,16 @@ textarea::placeholder {
 
 .dark .hero-typing-cursor {
   box-shadow: 0 0 8px rgba(90, 218, 204, 0.55), 0 0 14px rgba(90, 218, 204, 0.35);
+}
+
+@media (max-width: 1024px), (prefers-reduced-motion: reduce) {
+  .hero-rainbow-stack {
+    opacity: 0.2;
+    transform: translate(-28%, -50%) rotate(90deg) scale(1);
+  }
+
+  .hero-rainbow-trail {
+    filter: blur(14px);
+    box-shadow: 0 0 5px currentColor, 0 0 12px currentColor;
+  }
 }

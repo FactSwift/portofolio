@@ -27,8 +27,13 @@ const activities = [
     description: 'Disciplinary Committee.',
   },
   {
-    title: 'Algorithmia Fest 1.0 (2024)',
+    title: 'MOKA-KU 2024',
     image: '/images/activities/mokaku.jpg',
+    description: 'Staff of Mentor in an orientation and welcoming event for freshmen.',
+  },
+  {
+    title: 'Algorithmia Fest 1.0 (2024)',
+    image: '/images/activities/algo1.jpg',
     description: 'Staff of event, in charge of being an MC and project expo.',
   },
   {

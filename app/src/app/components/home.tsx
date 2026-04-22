@@ -10,15 +10,9 @@ import { HeroTypingAnimation, LIGHT_LINE_COLORS, DARK_LINE_COLORS } from '@/app/
 const BUILD_KEYWORDS = ['AI models', 'Web-apps', 'IoT Systems'];
 const GLITCH_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
-const Home = () => {
-  const [mounted, setMounted] = useState(false);
+const GlitchKeyword = () => {
   const [keywordIndex, setKeywordIndex] = useState(0);
   const [displayKeyword, setDisplayKeyword] = useState(BUILD_KEYWORDS[0]);
-  const { resolvedTheme } = useTheme();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     let frame = 0;
@@ -54,7 +48,7 @@ const Home = () => {
           setKeywordIndex((prev) => (prev + 1) % BUILD_KEYWORDS.length);
         }, 1200);
       }
-    }, 45);
+    }, 55);
 
     return () => {
       clearInterval(scrambleInterval);
@@ -64,6 +58,17 @@ const Home = () => {
       }
     };
   }, [keywordIndex]);
+
+  return <span className="inline-block text-brand-600 dark:text-red-300">{displayKeyword}</span>;
+};
+
+const Home = () => {
+  const [mounted, setMounted] = useState(false);
+  const { resolvedTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const lineColors = mounted && resolvedTheme === 'dark' ? DARK_LINE_COLORS : LIGHT_LINE_COLORS;
   const reversedLineColors = [...lineColors].reverse();
@@ -93,9 +98,7 @@ const Home = () => {
         <h2 className="section-heading mx-auto max-w-4xl text-balance text-[2.7rem] leading-[1.05] text-slate-900 sm:text-6xl md:text-7xl dark:text-slate-100">
           I build{' '}
           <span className="inline-block align-baseline">
-            <span className="inline-block text-brand-600 dark:text-red-300">
-              {displayKeyword}
-            </span>
+            <GlitchKeyword />
           </span>
           {' '}and lead projects
         </h2>

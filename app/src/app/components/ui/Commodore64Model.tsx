@@ -3,7 +3,7 @@
 import * as THREE from 'three';
 import { Suspense, useEffect } from 'react';
 import { Canvas, ThreeElements } from '@react-three/fiber';
-import { Environment, OrbitControls, useGLTF, useVideoTexture } from '@react-three/drei';
+import { AdaptiveDpr, Environment, Html, OrbitControls, useGLTF, useVideoTexture } from '@react-three/drei';
 import { GLTF } from 'three-stdlib';
 
 type GLTFResult = GLTF & {
@@ -105,16 +105,40 @@ function Commodore64(props: ThreeElements['group']) {
 
 useGLTF.preload('/commodore_64__computer_full_pack.glb');
 
+function ModelLoadingFallback() {
+  return (
+    <Html center>
+      <div className="pointer-events-none w-64 rounded-2xl border border-slate-300/70 bg-white/85 p-4 text-center shadow-xl backdrop-blur dark:border-slate-700/80 dark:bg-slate-900/85">
+        <p className="font-heading text-sm font-semibold tracking-[0.08em] text-slate-800 dark:text-slate-100">
+          Loading 3D Model
+        </p>
+        <div className="mt-3 flex items-center justify-center gap-3">
+          <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-brand-500 dark:bg-red-400" />
+          <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-brand-500 [animation-delay:140ms] dark:bg-red-400" />
+          <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-brand-500 [animation-delay:280ms] dark:bg-red-400" />
+        </div>
+        <p className="mt-2 text-xs font-medium text-slate-600 dark:text-slate-300">Preparing scene...</p>
+      </div>
+    </Html>
+  );
+}
+
 const Commodore64Model = () => {
   return (
     <div className="relative h-[420px] w-full overflow-hidden rounded-[2rem] border border-white/75 bg-slate-100/80 shadow-2xl dark:border-slate-700/80 dark:bg-slate-900/50">
-      <Canvas dpr={[1, 1.8]} camera={{ position: [5.2, 2.6, 8.6], fov: 30 }}>
+      <Canvas
+        dpr={[1, 1.35]}
+        camera={{ position: [5.2, 2.6, 8.6], fov: 30 }}
+        gl={{ antialias: true, powerPreference: 'high-performance' }}
+        performance={{ min: 0.55 }}
+      >
         <ambientLight intensity={0.58} />
         <directionalLight position={[5, 6, 3]} intensity={1.08} />
         <directionalLight position={[-4, 2, -3]} intensity={0.4} />
-        <Suspense fallback={null}>
+        <AdaptiveDpr />
+        <Suspense fallback={<ModelLoadingFallback />}>
           <Commodore64 position={[0, -1.05, 0]} rotation={[0, -0.58, 0]} scale={0.48} />
-          <Environment preset="city" />
+          <Environment preset="city" resolution={64} />
         </Suspense>
         <OrbitControls
           enablePan={false}

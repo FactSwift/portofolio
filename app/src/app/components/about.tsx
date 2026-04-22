@@ -1,11 +1,25 @@
 "use client";
 
-import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
+import { motion, useInView } from 'framer-motion';
 import { Download } from 'lucide-react';
+import { useRef } from 'react';
 import SectionWrapper from './section-wrapper';
-import Commodore64Model from './ui/Commodore64Model';
+
+const Commodore64Model = dynamic(() => import('./ui/Commodore64Model'), {
+  ssr: false,
+  loading: () => (
+    <div className="relative h-[420px] w-full overflow-hidden rounded-[2rem] border border-white/75 bg-slate-100/80 shadow-2xl dark:border-slate-700/80 dark:bg-slate-900/50" />
+  ),
+});
 
 const About = () => {
+  const modelContainerRef = useRef<HTMLDivElement | null>(null);
+  const shouldLoadModel = useInView(modelContainerRef, {
+    once: true,
+    amount: 0.2,
+  });
+
   return (
     <SectionWrapper id="about">
       <div className="mx-auto w-[min(1120px,92%)]">
@@ -41,6 +55,7 @@ const About = () => {
             </div>
           </motion.div>
           <motion.div
+            ref={modelContainerRef}
             initial={{ opacity: 0, x: 70 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -49,7 +64,11 @@ const About = () => {
           >
             <div className="absolute -inset-4 rounded-[2rem] border border-brand-300/55 dark:border-red-800/55" />
             <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-mint-300/45 blur-2xl dark:bg-mint-600/25" />
-            <Commodore64Model />
+            {shouldLoadModel ? (
+              <Commodore64Model />
+            ) : (
+              <div className="relative h-[420px] w-full overflow-hidden rounded-[2rem] border border-white/75 bg-slate-100/80 shadow-2xl dark:border-slate-700/80 dark:bg-slate-900/50" />
+            )}
           </motion.div>
         </div>
       </div>
