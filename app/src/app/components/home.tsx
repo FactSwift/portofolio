@@ -124,6 +124,7 @@ const Home = () => {
 
   const lineColors = mounted && resolvedTheme === 'dark' ? DARK_LINE_COLORS : LIGHT_LINE_COLORS;
   const reversedLineColors = [...lineColors].reverse();
+  const activeRainbowLines = lowPerformanceMode ? reversedLineColors.slice(0, 2) : reversedLineColors;
 
   const heroContent = (
     <>
@@ -171,36 +172,28 @@ const Home = () => {
 
   return (
     <section ref={sectionRef} id="home" className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 pb-16 pt-36 sm:px-6 lg:px-8">
-      {!lowPerformanceMode ? (
-        <div className="hero-rainbow-layer" aria-hidden="true">
-          <div className="hero-rainbow-stack">
-            {reversedLineColors.map((color, index) => (
-              <motion.div
-                key={`rainbow-stack-${color}`}
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ duration: 1.5, delay: index * 0.2, ease: 'easeOut' }}
-                className="hero-rainbow-trail"
-                style={{ backgroundColor: color, color, transformOrigin: 'left' }}
-              />
-            ))}
-          </div>
+      <div className="hero-rainbow-layer" aria-hidden="true">
+        <div className="hero-rainbow-stack">
+          {activeRainbowLines.map((color, index) => (
+            <motion.div
+              key={`rainbow-stack-${color}`}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: lowPerformanceMode ? 0.78 : 1.5, delay: index * (lowPerformanceMode ? 0.08 : 0.2), ease: 'easeOut' }}
+              className={`hero-rainbow-trail ${lowPerformanceMode ? 'hero-rainbow-trail-lite' : ''}`}
+              style={{ backgroundColor: color, color, transformOrigin: 'left' }}
+            />
+          ))}
         </div>
-      ) : null}
-      {lowPerformanceMode ? (
-        <div className="mx-auto w-full max-w-5xl space-y-8 text-center">
-          {heroContent}
-        </div>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 28 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-          className="mx-auto w-full max-w-5xl space-y-8 text-center"
-        >
-          {heroContent}
-        </motion.div>
-      )}
+      </div>
+      <motion.div
+        initial={{ opacity: 0, y: lowPerformanceMode ? 14 : 28 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: lowPerformanceMode ? 0.42 : 0.85, ease: [0.22, 1, 0.36, 1] }}
+        className="mx-auto w-full max-w-5xl space-y-8 text-center"
+      >
+        {heroContent}
+      </motion.div>
     </section>
   );
 };

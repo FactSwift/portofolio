@@ -127,12 +127,12 @@ function SceneModel({ qualityTier, isActive, ...props }: SceneModelProps) {
   const { scene } = useGLTF('/scene.glb');
   const invalidate = useThree((state) => state.invalidate);
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
-  const shouldAnimateVideo = qualityTier !== 'low';
+  const videoInvalidationIntervalMs = qualityTier === 'low' ? 96 : qualityTier === 'balanced' ? 50 : 33;
   const videoTexture = useVideoTexture('/mechiu-gameplay.mp4', {
     loop: true,
     muted: true,
     playsInline: true,
-    start: shouldAnimateVideo,
+    start: true,
     crossOrigin: 'anonymous',
   });
 
@@ -187,12 +187,6 @@ function SceneModel({ qualityTier, isActive, ...props }: SceneModelProps) {
 
     let lastPlayPromise: Promise<void> | undefined;
 
-    if (!shouldAnimateVideo) {
-      video.pause();
-      invalidate();
-      return;
-    }
-
     const tryPlay = () => {
       const playPromise = video.play();
 
@@ -232,10 +226,10 @@ function SceneModel({ qualityTier, isActive, ...props }: SceneModelProps) {
 
       video.pause();
     };
-  }, [isActive, invalidate, qualityTier, shouldAnimateVideo, videoElement]);
+  }, [isActive, invalidate, qualityTier, videoElement]);
 
   useEffect(() => {
-    if (!videoElement || !isActive || !shouldAnimateVideo) {
+    if (!videoElement || !isActive) {
       return;
     }
 
@@ -245,13 +239,16 @@ function SceneModel({ qualityTier, isActive, ...props }: SceneModelProps) {
     let lastTick = 0;
 
     const videoWithCallbacks = video as HTMLVideoElement & {
-      requestVideoFrameCallback?: (callback: () => void) => number;
+      requestVideoFrameCallback?: (callback: (now: number) => void) => number;
       cancelVideoFrameCallback?: (handle: number) => void;
     };
 
     if (typeof videoWithCallbacks.requestVideoFrameCallback === 'function') {
-      const onVideoFrame = () => {
-        invalidate();
+      const onVideoFrame = (now: number) => {
+        if (now - lastTick >= videoInvalidationIntervalMs) {
+          lastTick = now;
+          invalidate();
+        }
 
         if (!video.paused && !video.ended) {
           videoFrameId = videoWithCallbacks.requestVideoFrameCallback?.(onVideoFrame) ?? null;
@@ -261,7 +258,7 @@ function SceneModel({ qualityTier, isActive, ...props }: SceneModelProps) {
       videoFrameId = videoWithCallbacks.requestVideoFrameCallback(onVideoFrame);
     } else {
       const onAnimationFrame = (now: number) => {
-        if (now - lastTick >= 33) {
+        if (now - lastTick >= videoInvalidationIntervalMs) {
           lastTick = now;
           invalidate();
         }
@@ -283,7 +280,7 @@ function SceneModel({ qualityTier, isActive, ...props }: SceneModelProps) {
         videoWithCallbacks.cancelVideoFrameCallback(videoFrameId);
       }
     };
-  }, [invalidate, isActive, shouldAnimateVideo, videoElement]);
+  }, [invalidate, isActive, videoElement, videoInvalidationIntervalMs]);
 
   useEffect(() => {
     const strongCandidates: THREE.Mesh[] = [];

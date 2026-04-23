@@ -15,7 +15,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const root = document.documentElement
-    root.dataset.motion = lowPerformanceMode ? 'reduced' : 'full'
+    root.dataset.motion = lowPerformanceMode ? 'optimized' : 'full'
 
     return () => {
       delete root.dataset.motion
@@ -28,7 +28,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-      <MotionConfig reducedMotion={lowPerformanceMode ? 'always' : 'never'}>
+      <MotionConfig reducedMotion="user">
         {children}
       </MotionConfig>
     </ThemeProvider>

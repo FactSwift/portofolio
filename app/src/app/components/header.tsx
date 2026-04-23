@@ -67,15 +67,11 @@ const Header = () => {
     </div>
   );
 
-  if (lowPerformanceMode) {
-    return <header className={headerClassName}>{headerContent}</header>;
-  }
-
   return (
     <motion.header
-      initial={{ y: -90, opacity: 0 }}
+      initial={{ y: lowPerformanceMode ? -26 : -90, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: lowPerformanceMode ? 0.28 : 0.55, ease: [0.22, 1, 0.36, 1] }}
       className={headerClassName}
     >
       {headerContent}

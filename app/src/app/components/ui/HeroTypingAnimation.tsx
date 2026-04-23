@@ -20,30 +20,22 @@ const StackedLines = ({ colors, lowPerformanceMode }: { colors: string[]; lowPer
   return (
     <div className="flex flex-col w-full space-y-[2px]">
       {colors.map((color, index) => (
-        lowPerformanceMode ? (
-          <div
-            key={color}
-            className="hero-animated-line h-[2px] w-full md:h-[3px]"
-            style={{ color, backgroundColor: color, transformOrigin: 'left' }}
-          />
-        ) : (
-          <motion.div
-            key={color}
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{
-              duration: 1.5,
-              delay: index * 0.2,
-              ease: 'easeOut'
-            }}
-            className="hero-animated-line h-[2px] w-full md:h-[3px]"
-            style={{
-              color,
-              backgroundColor: color,
-              transformOrigin: 'left'
-            }}
-          />
-        )
+        <motion.div
+          key={color}
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{
+            duration: lowPerformanceMode ? 0.68 : 1.5,
+            delay: index * (lowPerformanceMode ? 0.08 : 0.2),
+            ease: 'easeOut'
+          }}
+          className="hero-animated-line h-[2px] w-full md:h-[3px]"
+          style={{
+            color,
+            backgroundColor: color,
+            transformOrigin: 'left'
+          }}
+        />
       ))}
     </div>
   );
@@ -73,53 +65,37 @@ export const HeroTypingAnimation = () => {
   return (
     <div className="w-full overflow-hidden">
       <div className="relative z-10 px-6 min-w-[220px] md:min-w-[280px] flex items-center justify-center">
-        {lowPerformanceMode ? (
-          <div
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, y: lowPerformanceMode ? 0 : 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: lowPerformanceMode ? 0 : -6 }}
+            transition={{ duration: lowPerformanceMode ? 0.16 : 0.22, ease: 'easeOut' }}
             className="hero-typing-text whitespace-nowrap text-sm font-semibold uppercase tracking-[0.24em] text-slate-700 dark:text-slate-100 md:text-base"
-            style={{ fontFamily: 'var(--font-barlow)' }}
+            style={{
+              fontFamily: 'var(--font-barlow)'
+            }}
           >
             {TITLES[currentIndex]}
-            <span className="hero-typing-cursor ml-2 inline-block h-[1em] w-[3px] bg-brand-500 align-middle dark:bg-red-300" />
-          </div>
-        ) : (
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={currentIndex}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.22, ease: 'easeOut' }}
-              className="hero-typing-text whitespace-nowrap text-sm font-semibold uppercase tracking-[0.24em] text-slate-700 dark:text-slate-100 md:text-base"
-              style={{
-                fontFamily: 'var(--font-barlow)'
-              }}
-            >
-              {TITLES[currentIndex]}
-              <motion.span
-                animate={{ opacity: [1, 0, 1] }}
-                transition={{ duration: 0.8, repeat: Infinity, ease: 'linear' }}
-                className="hero-typing-cursor ml-2 inline-block h-[1em] w-[3px] bg-brand-500 align-middle dark:bg-red-300"
-              />
-            </motion.div>
-          </AnimatePresence>
-        )}
+            <motion.span
+              animate={{ opacity: [1, 0, 1] }}
+              transition={{ duration: lowPerformanceMode ? 1.1 : 0.8, repeat: Infinity, ease: 'linear' }}
+              className="hero-typing-cursor ml-2 inline-block h-[1em] w-[3px] bg-brand-500 align-middle dark:bg-red-300"
+            />
+          </motion.div>
+        </AnimatePresence>
       </div>
 
-      {lowPerformanceMode ? (
-        <div className="relative z-0 mt-[2px] bg-transparent py-[2px]" style={{ transformOrigin: 'left' }}>
-          <StackedLines colors={activeLineColors} lowPerformanceMode={lowPerformanceMode} />
-        </div>
-      ) : (
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 2.1, ease: 'easeOut' }}
-          className="relative z-0 mt-[2px] bg-transparent py-[2px]"
-          style={{ transformOrigin: 'left' }}
-        >
-          <StackedLines colors={activeLineColors} lowPerformanceMode={lowPerformanceMode} />
-        </motion.div>
-      )}
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: lowPerformanceMode ? 0.9 : 2.1, ease: 'easeOut' }}
+        className="relative z-0 mt-[2px] bg-transparent py-[2px]"
+        style={{ transformOrigin: 'left' }}
+      >
+        <StackedLines colors={activeLineColors} lowPerformanceMode={lowPerformanceMode} />
+      </motion.div>
     </div>
   );
 };

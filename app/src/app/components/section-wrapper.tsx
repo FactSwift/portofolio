@@ -25,16 +25,24 @@ const sectionVariants: Variants = {
   },
 };
 
+const optimizedSectionVariants: Variants = {
+  offscreen: {
+    opacity: 0,
+    y: 16,
+  },
+  onscreen: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.3,
+      ease: 'easeOut',
+    },
+  },
+};
+
 const SectionWrapper: React.FC<SectionWrapperProps> = ({ children, className, id }) => {
   const lowPerformanceMode = useLowPerformanceMode();
-
-  if (lowPerformanceMode) {
-    return (
-      <section id={id} className={`relative py-24 md:py-28 ${className ?? ''}`}>
-        {children}
-      </section>
-    );
-  }
+  const activeVariants = lowPerformanceMode ? optimizedSectionVariants : sectionVariants;
 
   return (
     <motion.section
@@ -42,8 +50,8 @@ const SectionWrapper: React.FC<SectionWrapperProps> = ({ children, className, id
       className={`relative py-24 md:py-28 ${className ?? ''}`}
       initial="offscreen"
       whileInView="onscreen"
-      viewport={{ once: true, amount: 0.2 }}
-      variants={sectionVariants}
+      viewport={{ once: true, amount: lowPerformanceMode ? 0.12 : 0.2 }}
+      variants={activeVariants}
     >
       {children}
     </motion.section>
