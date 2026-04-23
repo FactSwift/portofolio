@@ -359,7 +359,7 @@ const Commodore64Model = ({ isActive = true }: Commodore64ModelProps) => {
   const qualityTier = useQualityTier();
 
   const dprRange: [number, number] =
-    qualityTier === 'high' ? [1, 1.25] : qualityTier === 'balanced' ? [0.82, 1.05] : [0.65, 0.85];
+    qualityTier === 'high' ? [1, 1.25] : qualityTier === 'balanced' ? [0.9, 1.12] : [0.8, 1];
 
   const canvasMinPerformance = qualityTier === 'high' ? 0.55 : qualityTier === 'balanced' ? 0.45 : 0.35;
   const environmentResolution = qualityTier === 'high' ? 48 : 24;
@@ -370,7 +370,7 @@ const Commodore64Model = ({ isActive = true }: Commodore64ModelProps) => {
         frameloop={isActive ? 'demand' : 'never'}
         dpr={dprRange}
         camera={{ position: [5.2, 2.6, 8.6], fov: 30 }}
-        gl={{ antialias: qualityTier === 'high', powerPreference: qualityTier === 'low' ? 'low-power' : 'high-performance' }}
+        gl={{ antialias: true, powerPreference: qualityTier === 'low' ? 'low-power' : 'high-performance' }}
         performance={{ min: canvasMinPerformance }}
       >
         {qualityTier === 'low' ? (
@@ -385,7 +385,7 @@ const Commodore64Model = ({ isActive = true }: Commodore64ModelProps) => {
             <directionalLight position={[-4, 2, -3]} intensity={qualityTier === 'high' ? 0.4 : 0.24} />
           </>
         )}
-        <AdaptiveDpr pixelated />
+        <AdaptiveDpr />
         <Suspense fallback={<ModelLoadingFallback />}>
           <SceneModel qualityTier={qualityTier} isActive={isActive} position={[0, -1.2, 0]} rotation={[0, 0, 0]} scale={0.7} />
           {qualityTier !== 'low' ? <Environment preset="city" resolution={environmentResolution} /> : null}
