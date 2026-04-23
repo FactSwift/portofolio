@@ -8,7 +8,7 @@ import { useTheme } from 'next-themes';
 import { HeroTypingAnimation, LIGHT_LINE_COLORS, DARK_LINE_COLORS } from '@/app/components/ui/HeroTypingAnimation';
 import { useLowPerformanceMode } from '@/app/hooks/useLowPerformanceMode';
 
-const BUILD_KEYWORDS = ['AI models', 'Web-apps', 'IoT Systems'];
+const BUILD_KEYWORDS = ['AI models', 'Web-apps', 'IoT-apps'];
 const GLITCH_CHARS = ['0', '1'] as const;
 const GLITCH_FRAME_INTERVAL_MS = 70;
 const GLITCH_HOLD_MS = 1200;
