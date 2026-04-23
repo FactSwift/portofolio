@@ -9,7 +9,7 @@ import { HeroTypingAnimation, LIGHT_LINE_COLORS, DARK_LINE_COLORS } from '@/app/
 import { useLowPerformanceMode } from '@/app/hooks/useLowPerformanceMode';
 
 const BUILD_KEYWORDS = ['AI models', 'Web-apps', 'IoT Systems'];
-const GLITCH_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const GLITCH_CHARS = '01';
 const GLITCH_FRAME_INTERVAL_MS = 70;
 const GLITCH_HOLD_MS = 1200;
 
