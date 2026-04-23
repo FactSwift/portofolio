@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { Github, Linkedin, Instagram } from 'lucide-react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
@@ -9,61 +9,111 @@ import { HeroTypingAnimation, LIGHT_LINE_COLORS, DARK_LINE_COLORS } from '@/app/
 
 const BUILD_KEYWORDS = ['AI models', 'Web-apps', 'IoT Systems'];
 const GLITCH_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const GLITCH_FRAME_INTERVAL_MS = 70;
+const GLITCH_HOLD_MS = 1200;
 
-const GlitchKeyword = () => {
+const GlitchKeyword = ({ isActive }: { isActive: boolean }) => {
   const [keywordIndex, setKeywordIndex] = useState(0);
   const [displayKeyword, setDisplayKeyword] = useState(BUILD_KEYWORDS[0]);
+  const [isDocumentVisible, setIsDocumentVisible] = useState(true);
 
   useEffect(() => {
-    let frame = 0;
-    const target = BUILD_KEYWORDS[keywordIndex];
-    let holdTimeout: ReturnType<typeof setTimeout> | null = null;
+    const handleVisibilityChange = () => {
+      setIsDocumentVisible(!document.hidden);
+    };
 
-    const scrambleInterval = setInterval(() => {
+    handleVisibilityChange();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    const target = BUILD_KEYWORDS[keywordIndex];
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!isActive || !isDocumentVisible || prefersReducedMotion) {
+      setDisplayKeyword(target);
+      return;
+    }
+
+    let frame = 0;
+    let rafId: number | null = null;
+    let lastTick = 0;
+    let holdTimeout: ReturnType<typeof setTimeout> | null = null;
+    let isStopped = false;
+
+    const updateScrambleFrame = () => {
       frame += 1;
       const revealCount = Math.max(0, frame - 2);
 
-      const glitchedText = target
-        .split('')
-        .map((char, index) => {
-          if (char === ' ' || char === '-') {
-            return char;
-          }
+      let nextValue = '';
 
-          if (index < revealCount) {
-            return char;
-          }
+      for (let index = 0; index < target.length; index += 1) {
+        const char = target[index];
 
-          return GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
-        })
-        .join('');
+        if (char === ' ' || char === '-' || index < revealCount) {
+          nextValue += char;
+        } else {
+          nextValue += GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+        }
+      }
 
-      setDisplayKeyword(glitchedText);
+      setDisplayKeyword((prev) => (prev === nextValue ? prev : nextValue));
 
       if (revealCount >= target.length) {
-        clearInterval(scrambleInterval);
         setDisplayKeyword(target);
-
         holdTimeout = setTimeout(() => {
           setKeywordIndex((prev) => (prev + 1) % BUILD_KEYWORDS.length);
-        }, 1200);
+        }, GLITCH_HOLD_MS);
+        return true;
       }
-    }, 55);
+
+      return false;
+    };
+
+    const animate = (now: number) => {
+      if (isStopped) {
+        return;
+      }
+
+      if (now - lastTick >= GLITCH_FRAME_INTERVAL_MS) {
+        lastTick = now;
+
+        const isCompleted = updateScrambleFrame();
+
+        if (isCompleted) {
+          return;
+        }
+      }
+
+      rafId = window.requestAnimationFrame(animate);
+    };
+
+    rafId = window.requestAnimationFrame(animate);
 
     return () => {
-      clearInterval(scrambleInterval);
+      isStopped = true;
+
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
+      }
 
       if (holdTimeout) {
         clearTimeout(holdTimeout);
       }
     };
-  }, [keywordIndex]);
+  }, [isActive, isDocumentVisible, keywordIndex]);
 
   return <span className="inline-block text-brand-600 dark:text-red-300">{displayKeyword}</span>;
 };
 
 const Home = () => {
   const [mounted, setMounted] = useState(false);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const isHeroInView = useInView(sectionRef, { amount: 0.35 });
   const { resolvedTheme } = useTheme();
 
   useEffect(() => {
@@ -74,7 +124,7 @@ const Home = () => {
   const reversedLineColors = [...lineColors].reverse();
 
   return (
-    <section id="home" className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 pb-16 pt-36 sm:px-6 lg:px-8">
+    <section ref={sectionRef} id="home" className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 pb-16 pt-36 sm:px-6 lg:px-8">
       <div className="hero-rainbow-layer" aria-hidden="true">
         <div className="hero-rainbow-stack">
           {reversedLineColors.map((color, index) => (
@@ -98,7 +148,7 @@ const Home = () => {
         <h2 className="section-heading mx-auto max-w-4xl text-balance text-[2.7rem] leading-[1.05] text-slate-900 sm:text-6xl md:text-7xl dark:text-slate-100">
           I build{' '}
           <span className="inline-block align-baseline">
-            <GlitchKeyword />
+            <GlitchKeyword isActive={isHeroInView} />
           </span>
           {' '}and lead projects
         </h2>

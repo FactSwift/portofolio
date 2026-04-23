@@ -6,7 +6,7 @@ import { Download } from 'lucide-react';
 import { useRef } from 'react';
 import SectionWrapper from './section-wrapper';
 
-const Commodore64Model = dynamic(() => import('./ui/Commodore64Model'), {
+const Commodore64Model = dynamic<{ isActive?: boolean }>(() => import('./ui/Commodore64Model'), {
   ssr: false,
   loading: () => (
     <div className="relative h-[420px] w-full overflow-hidden rounded-[2rem] border border-white/75 bg-slate-100/80 shadow-2xl dark:border-slate-700/80 dark:bg-slate-900/50" />
@@ -18,6 +18,11 @@ const About = () => {
   const shouldLoadModel = useInView(modelContainerRef, {
     once: true,
     amount: 0.2,
+  });
+
+  const isModelInView = useInView(modelContainerRef, {
+    amount: 0.1,
+    margin: '120px 0px',
   });
 
   return (
@@ -65,7 +70,7 @@ const About = () => {
             <div className="absolute -inset-4 rounded-[2rem] border border-brand-300/55 dark:border-red-800/55" />
             <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-mint-300/45 blur-2xl dark:bg-mint-600/25" />
             {shouldLoadModel ? (
-              <Commodore64Model />
+              <Commodore64Model isActive={isModelInView} />
             ) : (
               <div className="relative h-[420px] w-full overflow-hidden rounded-[2rem] border border-white/75 bg-slate-100/80 shadow-2xl dark:border-slate-700/80 dark:bg-slate-900/50" />
             )}

@@ -1,12 +1,28 @@
 'use client';
 
 import * as THREE from 'three';
-import { Suspense, useEffect, useMemo } from 'react';
-import { Canvas, ThreeElements } from '@react-three/fiber';
+import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Canvas, ThreeElements, useThree } from '@react-three/fiber';
 import { AdaptiveDpr, Environment, Html, OrbitControls, useGLTF, useVideoTexture } from '@react-three/drei';
 
 const SCREEN_INCLUDE_PATTERNS = ['screen', 'monitor_screen', 'object_19'];
 const SCREEN_EXCLUDE_PATTERNS = ['frame', 'white', 'black', 'body', 'keyboard', 'detail', 'cable', 'connector', 'plug'];
+
+type QualityTier = 'low' | 'balanced' | 'high';
+
+type Commodore64ModelProps = {
+  isActive?: boolean;
+};
+
+type NetworkInformationLike = {
+  saveData?: boolean;
+  effectiveType?: string;
+};
+
+type NavigatorWithHints = Navigator & {
+  deviceMemory?: number;
+  connection?: NetworkInformationLike;
+};
 
 const getMaterialLabel = (material: THREE.Material | THREE.Material[] | null | undefined) => {
   if (!material) {
@@ -41,8 +57,76 @@ const isLikelyFlatScreenGeometry = (geometry: THREE.BufferGeometry) => {
   return thicknessRatio < 0.08 && aspectRatio > 0.45 && aspectRatio < 0.9;
 };
 
-function SceneModel(props: ThreeElements['group']) {
+const resolveQualityTier = (): QualityTier => {
+  if (typeof window === 'undefined') {
+    return 'balanced';
+  }
+
+  const nav = navigator as NavigatorWithHints;
+  const connection = nav.connection;
+  const hasCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const saveData = connection?.saveData ?? false;
+  const hasSlowNetwork = connection?.effectiveType === '2g' || connection?.effectiveType === 'slow-2g';
+  const memory = typeof nav.deviceMemory === 'number' ? nav.deviceMemory : undefined;
+  const cores = nav.hardwareConcurrency ?? 4;
+
+  if (prefersReducedMotion || saveData || hasSlowNetwork) {
+    return 'low';
+  }
+
+  if (hasCoarsePointer && (cores <= 4 || (typeof memory === 'number' && memory <= 4))) {
+    return 'low';
+  }
+
+  if (hasCoarsePointer) {
+    return 'balanced';
+  }
+
+  if (cores >= 8 && (typeof memory !== 'number' || memory >= 8)) {
+    return 'high';
+  }
+
+  return 'balanced';
+};
+
+const useQualityTier = () => {
+  const [qualityTier, setQualityTier] = useState<QualityTier>('balanced');
+
+  useEffect(() => {
+    setQualityTier(resolveQualityTier());
+  }, []);
+
+  return qualityTier;
+};
+
+type SceneModelProps = ThreeElements['group'] & {
+  qualityTier: QualityTier;
+  isActive: boolean;
+};
+
+function SceneControls({ enabled }: { enabled: boolean }) {
+  const invalidate = useThree((state) => state.invalidate);
+
+  return (
+    <OrbitControls
+      enablePan={false}
+      enableZoom
+      minDistance={6}
+      maxDistance={10}
+      minPolarAngle={0.7}
+      maxPolarAngle={1.6}
+      enabled={enabled}
+      onChange={() => invalidate()}
+      onEnd={() => invalidate()}
+    />
+  );
+}
+
+function SceneModel({ qualityTier, isActive, ...props }: SceneModelProps) {
   const { scene } = useGLTF('/scene.glb');
+  const invalidate = useThree((state) => state.invalidate);
+  const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
   const videoTexture = useVideoTexture('/mechiu-gameplay.mp4', {
     loop: true,
     muted: true,
@@ -60,7 +144,141 @@ function SceneModel(props: ThreeElements['group']) {
     videoTexture.rotation = Math.PI / 2;
     videoTexture.wrapS = THREE.RepeatWrapping;
     videoTexture.repeat.x = -1;
+    videoTexture.generateMipmaps = false;
+    videoTexture.minFilter = THREE.LinearFilter;
+    videoTexture.magFilter = THREE.LinearFilter;
+  }, [videoTexture]);
 
+  useEffect(() => {
+    let rafId: number | null = null;
+
+    const resolveVideoElement = () => {
+      const maybeVideo = videoTexture.image;
+
+      if (maybeVideo instanceof HTMLVideoElement) {
+        setVideoElement(maybeVideo);
+        return;
+      }
+
+      rafId = window.requestAnimationFrame(resolveVideoElement);
+    };
+
+    resolveVideoElement();
+
+    return () => {
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
+      }
+    };
+  }, [videoTexture]);
+
+  useEffect(() => {
+    if (!videoElement) {
+      return;
+    }
+
+    const video = videoElement;
+
+    video.preload = qualityTier === 'low' ? 'metadata' : 'auto';
+    video.disablePictureInPicture = true;
+    video.setAttribute('playsinline', 'true');
+    video.setAttribute('webkit-playsinline', 'true');
+
+    let lastPlayPromise: Promise<void> | undefined;
+
+    const tryPlay = () => {
+      const playPromise = video.play();
+
+      if (playPromise) {
+        lastPlayPromise = playPromise.then(() => undefined).catch(() => undefined);
+      }
+    };
+
+    if (isActive && !document.hidden) {
+      tryPlay();
+      invalidate();
+    } else {
+      video.pause();
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.hidden || !isActive) {
+        video.pause();
+        return;
+      }
+
+      tryPlay();
+      invalidate();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+
+      if (lastPlayPromise) {
+        void lastPlayPromise.finally(() => {
+          video.pause();
+        });
+        return;
+      }
+
+      video.pause();
+    };
+  }, [isActive, invalidate, qualityTier, videoElement]);
+
+  useEffect(() => {
+    if (!videoElement || !isActive) {
+      return;
+    }
+
+    const video = videoElement;
+    let rafId: number | null = null;
+    let videoFrameId: number | null = null;
+    let lastTick = 0;
+
+    const videoWithCallbacks = video as HTMLVideoElement & {
+      requestVideoFrameCallback?: (callback: () => void) => number;
+      cancelVideoFrameCallback?: (handle: number) => void;
+    };
+
+    if (typeof videoWithCallbacks.requestVideoFrameCallback === 'function') {
+      const onVideoFrame = () => {
+        invalidate();
+
+        if (!video.paused && !video.ended) {
+          videoFrameId = videoWithCallbacks.requestVideoFrameCallback?.(onVideoFrame) ?? null;
+        }
+      };
+
+      videoFrameId = videoWithCallbacks.requestVideoFrameCallback(onVideoFrame);
+    } else {
+      const onAnimationFrame = (now: number) => {
+        if (now - lastTick >= 33) {
+          lastTick = now;
+          invalidate();
+        }
+
+        if (!video.paused && !video.ended) {
+          rafId = window.requestAnimationFrame(onAnimationFrame);
+        }
+      };
+
+      rafId = window.requestAnimationFrame(onAnimationFrame);
+    }
+
+    return () => {
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
+      }
+
+      if (videoFrameId !== null && typeof videoWithCallbacks.cancelVideoFrameCallback === 'function') {
+        videoWithCallbacks.cancelVideoFrameCallback(videoFrameId);
+      }
+    };
+  }, [invalidate, isActive, videoElement]);
+
+  useEffect(() => {
     const strongCandidates: THREE.Mesh[] = [];
     const fallbackCandidates: Array<{ mesh: THREE.Mesh; area: number }> = [];
 
@@ -97,8 +315,14 @@ function SceneModel(props: ThreeElements['group']) {
       return;
     }
 
-    targetMesh.material = new THREE.MeshBasicMaterial({ map: videoTexture, toneMapped: false });
-  }, [modelScene, videoTexture]);
+    const nextMaterial = new THREE.MeshBasicMaterial({ map: videoTexture, toneMapped: false });
+    targetMesh.material = nextMaterial;
+    invalidate();
+
+    return () => {
+      nextMaterial.dispose();
+    };
+  }, [invalidate, modelScene, videoTexture]);
 
   return (
     <group {...props} dispose={null}>
@@ -127,31 +351,42 @@ function ModelLoadingFallback() {
   );
 }
 
-const Commodore64Model = () => {
+const Commodore64Model = ({ isActive = true }: Commodore64ModelProps) => {
+  const qualityTier = useQualityTier();
+
+  const dprRange: [number, number] =
+    qualityTier === 'high' ? [1, 1.25] : qualityTier === 'balanced' ? [0.82, 1.05] : [0.65, 0.85];
+
+  const canvasMinPerformance = qualityTier === 'high' ? 0.55 : qualityTier === 'balanced' ? 0.45 : 0.35;
+  const environmentResolution = qualityTier === 'high' ? 48 : 24;
+
   return (
     <div className="relative h-[420px] w-full overflow-hidden rounded-[2rem] border border-white/75 bg-slate-100/80 shadow-2xl dark:border-slate-700/80 dark:bg-slate-900/50">
       <Canvas
-        dpr={[1, 1.25]}
+        frameloop={isActive ? 'demand' : 'never'}
+        dpr={dprRange}
         camera={{ position: [5.2, 2.6, 8.6], fov: 30 }}
-        gl={{ antialias: true, powerPreference: 'high-performance' }}
-        performance={{ min: 0.55 }}
+        gl={{ antialias: qualityTier === 'high', powerPreference: qualityTier === 'low' ? 'low-power' : 'high-performance' }}
+        performance={{ min: canvasMinPerformance }}
       >
-        <ambientLight intensity={0.58} />
-        <directionalLight position={[5, 6, 3]} intensity={1.08} />
-        <directionalLight position={[-4, 2, -3]} intensity={0.4} />
-        <AdaptiveDpr />
+        {qualityTier === 'low' ? (
+          <>
+            <ambientLight intensity={0.78} />
+            <hemisphereLight args={['#dbeafe', '#111827', 0.56]} />
+          </>
+        ) : (
+          <>
+            <ambientLight intensity={0.58} />
+            <directionalLight position={[5, 6, 3]} intensity={1.08} />
+            <directionalLight position={[-4, 2, -3]} intensity={qualityTier === 'high' ? 0.4 : 0.24} />
+          </>
+        )}
+        <AdaptiveDpr pixelated />
         <Suspense fallback={<ModelLoadingFallback />}>
-          <SceneModel position={[0, -1.2, 0]} rotation={[0, 0, 0]} scale={0.7} />
-          <Environment preset="city" resolution={48} />
+          <SceneModel qualityTier={qualityTier} isActive={isActive} position={[0, -1.2, 0]} rotation={[0, 0, 0]} scale={0.7} />
+          {qualityTier !== 'low' ? <Environment preset="city" resolution={environmentResolution} /> : null}
         </Suspense>
-        <OrbitControls
-          enablePan={false}
-          enableZoom
-          minDistance={6}
-          maxDistance={10}
-          minPolarAngle={0.7}
-          maxPolarAngle={1.6}
-        />
+        <SceneControls enabled={isActive} />
       </Canvas>
     </div>
   );
