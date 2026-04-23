@@ -9,7 +9,7 @@ import { HeroTypingAnimation, LIGHT_LINE_COLORS, DARK_LINE_COLORS } from '@/app/
 import { useLowPerformanceMode } from '@/app/hooks/useLowPerformanceMode';
 
 const BUILD_KEYWORDS = ['AI models', 'Web-apps', 'IoT Systems'];
-const GLITCH_CHARS = '01';
+const GLITCH_CHARS = ['0', '1'] as const;
 const GLITCH_FRAME_INTERVAL_MS = 70;
 const GLITCH_HOLD_MS = 1200;
 
@@ -58,7 +58,7 @@ const GlitchKeyword = ({ isActive }: { isActive: boolean }) => {
         if (char === ' ' || char === '-' || index < revealCount) {
           nextValue += char;
         } else {
-          nextValue += GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+          nextValue += GLITCH_CHARS[(frame + index) % GLITCH_CHARS.length];
         }
       }
 
