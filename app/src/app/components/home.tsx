@@ -58,7 +58,7 @@ const GlitchKeyword = ({ isActive }: { isActive: boolean }) => {
         if (char === ' ' || char === '-' || index < revealCount) {
           nextValue += char;
         } else {
-          nextValue += GLITCH_CHARS[(frame + index) % GLITCH_CHARS.length];
+          nextValue += GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
         }
       }
 
