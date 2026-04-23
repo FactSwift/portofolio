@@ -91,7 +91,7 @@ const resolveQualityTier = (): QualityTier => {
 };
 
 const useQualityTier = () => {
-  const [qualityTier, setQualityTier] = useState<QualityTier>('balanced');
+  const [qualityTier, setQualityTier] = useState<QualityTier>(() => resolveQualityTier());
 
   useEffect(() => {
     setQualityTier(resolveQualityTier());
@@ -127,11 +127,12 @@ function SceneModel({ qualityTier, isActive, ...props }: SceneModelProps) {
   const { scene } = useGLTF('/scene.glb');
   const invalidate = useThree((state) => state.invalidate);
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
+  const shouldAnimateVideo = qualityTier !== 'low';
   const videoTexture = useVideoTexture('/mechiu-gameplay.mp4', {
     loop: true,
     muted: true,
     playsInline: true,
-    start: true,
+    start: shouldAnimateVideo,
     crossOrigin: 'anonymous',
   });
 
@@ -186,6 +187,12 @@ function SceneModel({ qualityTier, isActive, ...props }: SceneModelProps) {
 
     let lastPlayPromise: Promise<void> | undefined;
 
+    if (!shouldAnimateVideo) {
+      video.pause();
+      invalidate();
+      return;
+    }
+
     const tryPlay = () => {
       const playPromise = video.play();
 
@@ -225,10 +232,10 @@ function SceneModel({ qualityTier, isActive, ...props }: SceneModelProps) {
 
       video.pause();
     };
-  }, [isActive, invalidate, qualityTier, videoElement]);
+  }, [isActive, invalidate, qualityTier, shouldAnimateVideo, videoElement]);
 
   useEffect(() => {
-    if (!videoElement || !isActive) {
+    if (!videoElement || !isActive || !shouldAnimateVideo) {
       return;
     }
 
@@ -276,7 +283,7 @@ function SceneModel({ qualityTier, isActive, ...props }: SceneModelProps) {
         videoWithCallbacks.cancelVideoFrameCallback(videoFrameId);
       }
     };
-  }, [invalidate, isActive, videoElement]);
+  }, [invalidate, isActive, shouldAnimateVideo, videoElement]);
 
   useEffect(() => {
     const strongCandidates: THREE.Mesh[] = [];

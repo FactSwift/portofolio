@@ -2,13 +2,25 @@
 
 import { ThemeProvider } from 'next-themes'
 import { useEffect, useState } from 'react'
+import { MotionConfig } from 'framer-motion'
+import { useLowPerformanceMode } from './hooks/useLowPerformanceMode'
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false)
+  const lowPerformanceMode = useLowPerformanceMode()
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    const root = document.documentElement
+    root.dataset.motion = lowPerformanceMode ? 'reduced' : 'full'
+
+    return () => {
+      delete root.dataset.motion
+    }
+  }, [lowPerformanceMode])
 
   if (!mounted) {
     return <>{children}</>
@@ -16,7 +28,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-      {children}
+      <MotionConfig reducedMotion={lowPerformanceMode ? 'always' : 'never'}>
+        {children}
+      </MotionConfig>
     </ThemeProvider>
   )
 }
