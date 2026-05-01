@@ -77,7 +77,7 @@ const ProjectCard = ({ project, index }: { project: typeof projects[0], index: n
       viewport={{ once: true, amount: 0.35 }}
       transition={{ duration: 0.55, delay: index * 0.1 }}
       whileHover={{ y: -6 }}
-      className="surface-card group flex h-[560px] min-w-[320px] max-w-[320px] snap-center flex-col overflow-hidden md:h-[600px] md:min-w-[380px] md:max-w-[380px]"
+      className="surface-card group flex h-[560px] min-w-[88vw] max-w-[88vw] snap-center flex-col overflow-hidden sm:min-w-[320px] sm:max-w-[320px] md:h-[600px] md:min-w-[380px] md:max-w-[380px]"
     >
       <div className="relative h-56 w-full overflow-hidden">
         {project.images.map((src, i) => (
