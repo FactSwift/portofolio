@@ -17,7 +17,7 @@ const projects = [
     githubUrl: null
   },
   {
-    title: "Aang IOT Air Control System",
+    title: "Aang IoT Air Control System",
     description: "A remote web app-controlled air purifier with smart monitoring and an autonomous system that can be managed from anywhere. We won 'People's Choice Award'",
     images: ["/images/aang2.jpeg", "/images/aang1.jpeg"],
     tags: ["Firebase", "Vite", "ESP32", "Python"],
