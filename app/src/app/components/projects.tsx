@@ -39,6 +39,22 @@ const projects = [
     tags: ["Java", "JavaFX"],
     liveUrl: null,
     githubUrl: "https://github.com/FactSwift/MecHiu"
+  },
+  {
+    title: "Line Follower",
+    description: "A-graded line follower robot capable of heat detection for 5th semester final Robotics project.",
+    images: ["/images/linefollow.jpg"],
+    tags: ["ESP32", "Open CV", "C++", "MQTT"],
+    liveUrl: null,
+    githubUrl: null
+  },
+  {
+    title: "Firefighter RC",
+    description: "A-graded firefighter RC car with both autonomous control via detection and manual remotely controlled. Made for 3rd semester Control Systems and Microcontroller finals project.",
+    images: ["/images/firefighter.jpg"],
+    tags: ["ESP32", "C++"],
+    liveUrl: null,
+    githubUrl: null
   }
 ];
 
@@ -61,7 +77,7 @@ const ProjectCard = ({ project, index }: { project: typeof projects[0], index: n
       viewport={{ once: true, amount: 0.35 }}
       transition={{ duration: 0.55, delay: index * 0.1 }}
       whileHover={{ y: -6 }}
-      className="surface-card group flex h-full min-w-[320px] max-w-[320px] snap-center flex-col overflow-hidden md:min-w-[380px] md:max-w-[380px]"
+      className="surface-card group flex h-[560px] min-w-[320px] max-w-[320px] snap-center flex-col overflow-hidden md:h-[600px] md:min-w-[380px] md:max-w-[380px]"
     >
       <div className="relative h-56 w-full overflow-hidden">
         {project.images.map((src, i) => (
@@ -94,7 +110,12 @@ const ProjectCard = ({ project, index }: { project: typeof projects[0], index: n
       </div>
       <div className="flex flex-grow flex-col p-6">
         <h3 className="font-heading text-2xl font-bold text-slate-900 dark:text-slate-100">{project.title}</h3>
-        <p className="mt-2 flex-grow text-sm leading-relaxed text-[color:var(--muted)] md:text-base">{project.description}</p>
+        <p
+          className="mt-2 flex-grow text-sm leading-relaxed text-[color:var(--muted)] md:text-base"
+          style={{ display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+        >
+          {project.description}
+        </p>
         <div className="mt-5 flex flex-wrap gap-2">
           {project.tags.map(tag => (
             <span
