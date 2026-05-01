@@ -53,7 +53,7 @@ const About = () => {
               </p>
             </div>
             <div className="mt-8 text-left">
-              <a href="#" className="action-btn" aria-label="Download CV">
+              <a href="https://drive.google.com/file/d/1T3GFIPxMyvMnG72WSoq2EmmKYGHgF41Y/view?usp=sharing" className="action-btn" aria-label="Download CV">
                 <Download className="mr-2 h-5 w-5" />
                 Download CV
               </a>
